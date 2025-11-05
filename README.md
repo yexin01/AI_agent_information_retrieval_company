@@ -47,12 +47,6 @@ Users can also **refresh** the data to trigger a new retrieval from the web.
 ```
 ---
 
-# Run and deploy your AI Studio app
-
-This contains everything you need to run your app locally.
-
-View your app in AI Studio: https://ai.studio/apps/drive/1dLvnbSxqI_gnhjVgpGNLnmYJkQpO1-ki
-
 ## Run Locally
 
 **Prerequisites:**  Node.js
