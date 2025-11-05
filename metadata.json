@@ -1,0 +1,5 @@
+{
+  "name": "AI Company Profile Agent",
+  "description": "An autonomous AI agent that retrieves, extracts, and visualizes public company information from the web using Gemini with Google Search grounding.",
+  "requestFramePermissions": []
+}
