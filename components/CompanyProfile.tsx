@@ -68,7 +68,7 @@ export const CompanyProfile: React.FC<CompanyProfileProps> = ({ data, onRefresh,
         </button>
       </div>
 
-      <AgentSteps steps={agent_steps} />
+      <AgentSteps steps={agent_steps} animateOnMount={false} />
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
         <MetricCard icon={<CalendarIcon/>} title="Founded" value={formatValue(company_data.founded_year)} />

@@ -114,7 +114,7 @@ const App: React.FC = () => {
           
           {isAnimatingSteps && !agentResponse && (
              <div className="bg-slate-800/50 border border-slate-700 p-6 rounded-xl shadow-2xl animate-fade-in">
-              <AgentSteps steps={currentSteps} />
+              <AgentSteps steps={currentSteps} animateOnMount={true} />
             </div>
           )}
 
