@@ -3,6 +3,10 @@
 An **autonomous AI-powered system** for automatically retrieving, extracting, and visualizing **structured company information** from the web.  
 Built by Xin Ye, with **Google AI Studio**, a **Python/Node backend**, and a simple **web-based dashboard**.
 
+## DEMO Video
+
+[![Watch the video](https://img.youtube.com/vi/uKeqqTn9tkk/hqdefault.jpg)](https://www.youtube.com/watch?v=uKeqqTn9tkk)
+
 ---
 
 ## Overview
