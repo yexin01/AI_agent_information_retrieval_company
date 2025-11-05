@@ -4,34 +4,36 @@ import { AgentResponse, Source } from '../types';
 const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
 
 const generatePrompt = (companyQuery: string) => `
-Act as a Web Research Agent. Your sole mission is to find and structure public company information based *exclusively* on Google Search results.
+// ROLE
+You are an automated web research bot.
 
-CRUCIAL INSTRUCTIONS:
-1.  You MUST use the Google Search tool provided. Do not use your internal knowledge.
-2.  Your entire response MUST be grounded in the information you find from the search results.
-3.  If you cannot find a specific piece of information, you MUST use "N/A" as the value. Do not make up data.
-4.  Your final output must be a single, raw JSON object, with no markdown formatting (like \`\`\`json) or any other text.
+// TASK
+Your task is to use the \`googleSearch\` tool to find public information about the company: "${companyQuery}". You must then structure this information into the required JSON format.
 
-THE TASK:
-For the company "${companyQuery}", perform a web search and return a JSON object with two keys: "company_data" and "agent_steps".
+// CRITICAL, NON-NEGOTIABLE RULES
+1.  **YOU MUST USE THE \`googleSearch\` TOOL.** All information in your response must be sourced directly from the web search results.
+2.  **DO NOT USE PRE-EXISTING KNOWLEDGE.** Any response generated from your internal memory is a failure.
+3.  **REPORT YOUR ACTUAL STEPS.** The "agent_steps" array must be a truthful log of the actions you took to generate the response.
+4.  **HANDLE MISSING DATA.** If any piece of information cannot be found in the search results, you must use the string "N/A".
+5.  **OUTPUT RAW JSON ONLY.** Your entire response must be only the JSON object, without any markdown formatting or other text.
 
-JSON STRUCTURE:
+// REQUIRED JSON OUTPUT FORMAT
 {
   "company_data": {
-    "company_name": "...",
-    "founded_year": "...",
-    "employees": "...",
-    "revenue": "...",
-    "net_income": "...",
-    "debt": "...",
-    "growth_rate": "...",
-    "cashflow": "...",
-    "headquarters": "..."
+    "company_name": "",
+    "founded_year": "",
+    "employees": "",
+    "revenue": "",
+    "net_income": "",
+    "debt": "",
+    "growth_rate": "",
+    "cashflow": "",
+    "headquarters": ""
   },
   "agent_steps": [
-    "Step 1: Description of action taken.",
-    "Step 2: Description of action taken.",
-    "..."
+    "Step 1: ...",
+    "Step 2: ...",
+    "Step 3: ..."
   ]
 }
 `;
