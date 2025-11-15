@@ -149,3 +149,87 @@ export const fetchCompanyData = async (companyQuery: string): Promise<AgentRespo
     throw new Error("An unknown error occurred while fetching company data.");
   }
 };
+
+export interface ChatOptions {
+  isWebSearchEnabled: boolean;
+  isDeepAnalysisEnabled: boolean;
+}
+
+export interface ChatResponse {
+  text: string;
+  sources?: Source[];
+}
+
+export const sendChatMessage = async (
+  message: string, 
+  options: ChatOptions, 
+  companyContext?: string
+): Promise<ChatResponse> => {
+  try {
+    let content = message;
+    if (companyContext) {
+      content = `Given the context that I am looking at a company profile for "${companyContext}", answer the following question: ${message}`;
+    }
+
+    const systemInstructions: string[] = [
+      "You are a helpful AI assistant specializing in business and financial topics. Your name is Profile Agent Assistant.",
+      "Answer questions clearly and concisely.",
+      "You can use Markdown for formatting your responses, such as using bolding with asterisks (*bold*) or bullet points with hyphens (-)."
+    ];
+
+    const model = options.isDeepAnalysisEnabled ? 'gemini-2.5-pro' : 'gemini-2.5-flash';
+    const config: any = {};
+    let tools: any[] | undefined = undefined;
+
+    if (options.isWebSearchEnabled) {
+      tools = [{ googleSearch: {} }];
+      systemInstructions.push("When asked for up-to-date information, news, or recent events, you MUST use the provided Google Search tool to find the most current and accurate answers. Base your responses on the search results.");
+    }
+    
+    if (options.isDeepAnalysisEnabled) {
+      config.thinkingConfig = { thinkingBudget: 32768 };
+      systemInstructions.push("You are now in Deep Analysis mode. Take your time to provide thorough, insightful, and well-reasoned answers, even for complex or abstract questions. Leverage your advanced reasoning capabilities.");
+    }
+
+    config.systemInstruction = systemInstructions.join('\n');
+
+    const response = await ai.models.generateContent({
+      model,
+      contents: content,
+      config,
+      tools,
+    });
+
+    const text = response.text;
+    if (!text) {
+      throw new Error("The model returned an empty response.");
+    }
+
+    const chatResponse: ChatResponse = { text };
+
+    if (options.isWebSearchEnabled) {
+      const groundingMetadata = response.candidates?.[0]?.groundingMetadata;
+      const sources: Source[] = [];
+      if (groundingMetadata?.groundingChunks) {
+        for (const chunk of groundingMetadata.groundingChunks) {
+          if (chunk.web) {
+            sources.push({
+              uri: chunk.web.uri,
+              title: chunk.web.title || "Untitled Source",
+            });
+          }
+        }
+      }
+      chatResponse.sources = sources;
+    }
+    
+    return chatResponse;
+
+  } catch (error) {
+    console.error("Error sending chat message to Gemini:", error);
+    if (error instanceof Error) {
+        throw new Error(`Failed to get a response from the assistant: ${error.message}`);
+    }
+    throw new Error("An unknown error occurred while chatting with the assistant.");
+  }
+};

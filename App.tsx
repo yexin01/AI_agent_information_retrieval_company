@@ -8,6 +8,8 @@ import { Dashboard } from './components/Dashboard';
 import { AgentSteps } from './components/AgentSteps';
 import { LogoIcon } from './components/icons/LogoIcon';
 import { SpinnerIcon } from './components/icons/SpinnerIcon';
+import { ChatbotToggleButton } from './components/ChatbotToggleButton';
+import { Chatbot } from './components/Chatbot';
 
 type View = 'dashboard' | 'searching' | 'profile';
 
@@ -21,6 +23,7 @@ const App: React.FC = () => {
   const [isAnimatingSteps, setIsAnimatingSteps] = useState<boolean>(false);
   const [currentSteps, setCurrentSteps] = useState<string[]>([]);
   const [error, setError] = useState<string | null>(null);
+  const [isChatOpen, setIsChatOpen] = useState(false);
 
   useEffect(() => {
     // Carica tutte le aziende dal database locale all'avvio dell'app
@@ -155,6 +158,12 @@ const App: React.FC = () => {
 
         </div>
       </main>
+      {!isChatOpen && <ChatbotToggleButton onClick={() => setIsChatOpen(true)} />}
+      <Chatbot 
+        isOpen={isChatOpen} 
+        onClose={() => setIsChatOpen(false)}
+        companyContext={currentCompany?.company_data.company_name}
+      />
       <footer className="text-center py-4 text-xs text-slate-600">
         Powered by Google Gemini
       </footer>
