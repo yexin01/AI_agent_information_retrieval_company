@@ -21,6 +21,7 @@ Your task is to use the \`googleSearch\` tool to find public information about t
 {
   "company_data": {
     "company_name": "",
+    "description": "A brief, one-paragraph summary of the company's business and mission.",
     "sector": "",
     "industry": "",
     "founded_year": "",

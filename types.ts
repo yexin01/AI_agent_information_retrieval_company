@@ -1,5 +1,6 @@
 export interface CompanyData {
   company_name: string;
+  description: string;
   sector: string;
   industry: string;
   founded_year: number | string;

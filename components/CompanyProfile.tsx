@@ -15,6 +15,7 @@ import { GlobeIcon } from './icons/GlobeIcon';
 import { BanknotesIcon } from './icons/BanknotesIcon';
 import { ExclamationCircleIcon } from './icons/ExclamationCircleIcon';
 import { TagIcon } from './icons/TagIcon';
+import { InformationCircleIcon } from './icons/InformationCircleIcon';
 
 interface CompanyProfileProps {
   data: AgentResponse;
@@ -69,7 +70,7 @@ export const CompanyProfile: React.FC<CompanyProfileProps> = ({ data, onRefresh,
         </button>
       </div>
       
-      <div>
+      <div className="border-b border-slate-700 pb-6">
         <h2 className="text-3xl font-bold text-white flex items-center gap-3">
           <BuildingIcon className="w-8 h-8 text-cyan-400" />
           {company_data.company_name}
@@ -92,6 +93,16 @@ export const CompanyProfile: React.FC<CompanyProfileProps> = ({ data, onRefresh,
             )}
         </div>
       </div>
+
+      {company_data.description && company_data.description !== 'N/A' && (
+        <div>
+          <h3 className="text-lg font-semibold text-slate-300 mb-2 flex items-center gap-2">
+            <InformationCircleIcon className="w-5 h-5 text-slate-400" />
+            About {company_data.company_name}
+          </h3>
+          <p className="text-slate-400 leading-relaxed">{company_data.description}</p>
+        </div>
+      )}
 
       <AgentSteps steps={agent_steps} animateOnMount={false} />
 
