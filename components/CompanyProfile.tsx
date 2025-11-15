@@ -3,6 +3,8 @@ import { AgentResponse } from '../types';
 import { MetricCard } from './MetricCard';
 import { AgentSteps } from './AgentSteps';
 import { SourceList } from './SourceList';
+import { StockTicker } from './StockTicker';
+import { FinancialChart } from './FinancialChart';
 import { RefreshIcon } from './icons/RefreshIcon';
 import { ArrowLeftIcon } from './icons/ArrowLeftIcon';
 import { BuildingIcon } from './icons/BuildingIcon';
@@ -16,6 +18,10 @@ import { BanknotesIcon } from './icons/BanknotesIcon';
 import { ExclamationCircleIcon } from './icons/ExclamationCircleIcon';
 import { TagIcon } from './icons/TagIcon';
 import { InformationCircleIcon } from './icons/InformationCircleIcon';
+import { ScaleIcon } from './icons/ScaleIcon';
+import { ReceiptPercentIcon } from './icons/ReceiptPercentIcon';
+import { ArrowTrendingUpIcon } from './icons/ArrowTrendingUpIcon';
+import { ChartBarSquareIcon } from './icons/ChartBarSquareIcon';
 
 interface CompanyProfileProps {
   data: AgentResponse;
@@ -50,6 +56,16 @@ export const CompanyProfile: React.FC<CompanyProfileProps> = ({ data, onRefresh,
     if (interval > 1) return `${Math.floor(interval)} minute${Math.floor(interval) > 1 ? 's' : ''} ago`;
     return "just now";
   }
+
+  const hasStockData = company_data.stock_data && company_data.stock_data.price !== 'N/A';
+  const hasFinancialRatios = company_data.financial_ratios && 
+    (company_data.financial_ratios.pe_ratio !== 'N/A' ||
+     company_data.financial_ratios.eps !== 'N/A' ||
+     company_data.financial_ratios.roe !== 'N/A');
+  
+  const hasTrendData = company_data.revenue_trend?.some(d => d.value !== 'N/A') ||
+                     company_data.net_income_trend?.some(d => d.value !== 'N/A') ||
+                     company_data.cashflow_trend?.some(d => d.value !== 'N/A');
 
   return (
     <div className="bg-slate-800/50 border border-slate-700 p-6 rounded-xl shadow-2xl animate-fade-in space-y-8">
@@ -104,18 +120,48 @@ export const CompanyProfile: React.FC<CompanyProfileProps> = ({ data, onRefresh,
         </div>
       )}
 
-      <AgentSteps steps={agent_steps} animateOnMount={false} />
+      {hasStockData && <StockTicker data={company_data.stock_data} />}
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-        <MetricCard icon={<CalendarIcon/>} title="Founded" value={formatValue(company_data.founded_year)} />
-        <MetricCard icon={<GlobeIcon/>} title="Headquarters" value={formatValue(company_data.headquarters)} />
-        <MetricCard icon={<UsersIcon/>} title="Employees" value={formatValue(company_data.employees)} />
-        <MetricCard icon={<ChartBarIcon/>} title="Revenue" value={formatValue(company_data.revenue)} />
-        <MetricCard icon={<CashIcon/>} title="Net Income" value={formatValue(company_data.net_income)} />
-        <MetricCard icon={<TrendingUpIcon/>} title="Growth Rate (YoY)" value={formatValue(company_data.growth_rate)} />
-        <MetricCard icon={<BanknotesIcon/>} title="Cash Flow" value={formatValue(company_data.cashflow)} />
-        <MetricCard icon={<ExclamationCircleIcon/>} title="Total Debt" value={formatValue(company_data.debt)} />
+      <AgentSteps steps={agent_steps} animateOnMount={false} />
+      
+      {hasTrendData && (
+        <div>
+           <h3 className="text-lg font-semibold text-slate-300 mb-3 flex items-center gap-2">
+              <ChartBarSquareIcon className="w-5 h-5 text-slate-400" />
+              Financial Trends (5-Year History)
+            </h3>
+            <FinancialChart data={{
+              revenue: company_data.revenue_trend,
+              netIncome: company_data.net_income_trend,
+              cashflow: company_data.cashflow_trend,
+            }} />
+        </div>
+      )}
+
+      <div>
+        <h3 className="text-lg font-semibold text-slate-300 mb-3">Key Metrics</h3>
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+          <MetricCard icon={<CalendarIcon/>} title="Founded" value={formatValue(company_data.founded_year)} />
+          <MetricCard icon={<GlobeIcon/>} title="Headquarters" value={formatValue(company_data.headquarters)} />
+          <MetricCard icon={<UsersIcon/>} title="Employees" value={formatValue(company_data.employees)} />
+          <MetricCard icon={<ChartBarIcon/>} title="Revenue" value={formatValue(company_data.revenue)} />
+          <MetricCard icon={<CashIcon/>} title="Net Income" value={formatValue(company_data.net_income)} />
+          <MetricCard icon={<TrendingUpIcon/>} title="Growth Rate (YoY)" value={formatValue(company_data.growth_rate)} />
+          <MetricCard icon={<BanknotesIcon/>} title="Cash Flow" value={formatValue(company_data.cashflow)} />
+          <MetricCard icon={<ExclamationCircleIcon/>} title="Total Debt" value={formatValue(company_data.debt)} />
+        </div>
       </div>
+      
+      {hasFinancialRatios && (
+        <div>
+          <h3 className="text-lg font-semibold text-slate-300 mb-3 mt-6">Financial Ratios</h3>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+              <MetricCard icon={<ScaleIcon/>} title="P/E Ratio" value={formatValue(company_data.financial_ratios?.pe_ratio)} />
+              <MetricCard icon={<ReceiptPercentIcon/>} title="EPS" value={formatValue(company_data.financial_ratios?.eps)} />
+              <MetricCard icon={<ArrowTrendingUpIcon/>} title="Return on Equity (ROE)" value={formatValue(company_data.financial_ratios?.roe)} />
+          </div>
+        </div>
+      )}
       
       <SourceList sources={sources} />
     </div>

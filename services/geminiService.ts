@@ -14,8 +14,9 @@ Your task is to use the \`googleSearch\` tool to find public information about t
 1.  **YOU MUST USE THE \`googleSearch\` TOOL.** All information in your response must be sourced directly from the web search results.
 2.  **DO NOT USE PRE-EXISTING KNOWLEDGE.** Any response generated from your internal memory is a failure.
 3.  **REPORT YOUR ACTUAL STEPS.** The "agent_steps" array must be a truthful log of the actions you took to generate the response.
-4.  **HANDLE MISSING DATA.** If any piece of information cannot be found in the search results, you must use the string "N/A".
-5.  **OUTPUT RAW JSON ONLY.** Your entire response must be only the JSON object, without any markdown formatting or other text.
+4.  **HANDLE MISSING DATA.** If any piece of information cannot be found in the search results, you must use the string "N/A". This includes all fields in the stock_data and financial_ratios objects if the company is not publicly traded. For trend data, provide an empty array [] if no historical data is found.
+5.  **PROVIDE 5-YEAR TRENDS.** For revenue, net_income, and cashflow, you must provide data for the last 5 years. The top-level fields (e.g., "revenue") should contain the value for the most recent year.
+6.  **OUTPUT RAW JSON ONLY.** Your entire response must be only the JSON object, without any markdown formatting or other text.
 
 // REQUIRED JSON OUTPUT FORMAT
 {
@@ -26,12 +27,36 @@ Your task is to use the \`googleSearch\` tool to find public information about t
     "industry": "",
     "founded_year": "",
     "employees": "",
-    "revenue": "",
-    "net_income": "",
+    "revenue": "The most recent year's revenue.",
+    "net_income": "The most recent year's net income.",
+    "cashflow": "The most recent year's operating cash flow.",
     "debt": "",
     "growth_rate": "",
-    "cashflow": "",
-    "headquarters": ""
+    "headquarters": "",
+    "stock_data": {
+      "price": "Current stock price, as a string.",
+      "change": "Today's price change as a string (e.g., '-1.25' or '+2.50').",
+      "change_percent": "Today's percentage change as a string (e.g., '-0.5%' or '+1.2%').",
+      "market_cap": "Company's market capitalization as a string.",
+      "chart_url": "A direct URL to a stock chart (e.g., Google Finance, Yahoo Finance)."
+    },
+    "financial_ratios": {
+      "pe_ratio": "Price-to-Earnings ratio as a string.",
+      "eps": "Earnings Per Share as a string.",
+      "roe": "Return on Equity as a string (e.g., '15.2%')."
+    },
+    "revenue_trend": [
+      { "year": 2023, "value": "500B USD" },
+      { "year": 2022, "value": "450B USD" }
+    ],
+    "net_income_trend": [
+      { "year": 2023, "value": "100B USD" },
+      { "year": 2022, "value": "90B USD" }
+    ],
+    "cashflow_trend": [
+      { "year": 2023, "value": "120B USD" },
+      { "year": 2022, "value": "110B USD" }
+    ]
   },
   "agent_steps": [
     "Step 1: ...",
@@ -82,9 +107,25 @@ export const fetchCompanyData = async (companyQuery: string): Promise<AgentRespo
         throw new Error("The AI response is missing required fields (company_data or agent_steps).");
     }
     
-    const dataValues = Object.values(parsedResponse.company_data);
-    // Check if the agent returned any data beyond just the company name or N/A values.
-    const hasMeaningfulData = dataValues.some(val => val && val !== 'N/A' && val !== 0 && val !== '');
+    // Deconstruct company_data to check all fields for meaningful content,
+    // excluding the company_name which is often just a reflection of the user's query.
+    const { 
+      company_name, 
+      stock_data, 
+      financial_ratios, 
+      revenue_trend = [], 
+      net_income_trend = [], 
+      cashflow_trend = [],
+      ...rest 
+    } = parsedResponse.company_data;
+    
+    const stockValues = stock_data ? Object.values(stock_data) : [];
+    const ratioValues = financial_ratios ? Object.values(financial_ratios) : [];
+    const trendValues = [...revenue_trend, ...net_income_trend, ...cashflow_trend].map(item => item.value);
+    const allDataValues = [...Object.values(rest), ...stockValues, ...ratioValues, ...trendValues];
+
+    // Check if the agent returned any data beyond just N/A values.
+    const hasMeaningfulData = allDataValues.some(val => val && val !== 'N/A' && val !== 0 && val !== '');
     
     if (hasMeaningfulData && sources.length === 0) {
       throw new Error("The AI agent provided data but failed to cite its sources. Please try the search again for reliable results.");
