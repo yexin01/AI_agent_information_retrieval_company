@@ -1,5 +1,7 @@
 export interface CompanyData {
   company_name: string;
+  sector: string;
+  industry: string;
   founded_year: number | string;
   employees: number | string;
   revenue: string;

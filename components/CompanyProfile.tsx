@@ -14,6 +14,7 @@ import { TrendingUpIcon } from './icons/TrendingUpIcon';
 import { GlobeIcon } from './icons/GlobeIcon';
 import { BanknotesIcon } from './icons/BanknotesIcon';
 import { ExclamationCircleIcon } from './icons/ExclamationCircleIcon';
+import { TagIcon } from './icons/TagIcon';
 
 interface CompanyProfileProps {
   data: AgentResponse;
@@ -76,6 +77,20 @@ export const CompanyProfile: React.FC<CompanyProfileProps> = ({ data, onRefresh,
         <p className="text-slate-400 mt-1">
           Last updated: {timeAgo(lastUpdatedDate)}
         </p>
+        <div className="flex flex-wrap items-center gap-2 mt-4">
+            {company_data.sector && company_data.sector !== 'N/A' && (
+              <div className="flex items-center gap-1.5 bg-cyan-900/50 text-cyan-300 text-xs font-medium px-2.5 py-1 rounded-full border border-cyan-800">
+                <TagIcon className="w-4 h-4" />
+                <span>{company_data.sector}</span>
+              </div>
+            )}
+            {company_data.industry && company_data.industry !== 'N/A' && (
+              <div className="flex items-center gap-1.5 bg-violet-900/50 text-violet-300 text-xs font-medium px-2.5 py-1 rounded-full border border-violet-800">
+                <TagIcon className="w-4 h-4" />
+                <span>{company_data.industry}</span>
+              </div>
+            )}
+        </div>
       </div>
 
       <AgentSteps steps={agent_steps} animateOnMount={false} />

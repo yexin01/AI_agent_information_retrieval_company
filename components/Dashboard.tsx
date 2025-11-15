@@ -8,7 +8,8 @@ interface DashboardProps {
 }
 
 export const Dashboard: React.FC<DashboardProps> = ({ companies, onSelectCompany }) => {
-  const companyList = Object.values(companies);
+  // Fix: Explicitly type companyList to ensure correct type inference for its elements.
+  const companyList: AgentResponse[] = Object.values(companies);
 
   if (companyList.length === 0) {
     return (
